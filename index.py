@@ -1,5 +1,5 @@
 # Sellers Industry 2020
-# Aris Defense Project - Sythetic Image Generator
+# Aris Defense Project - Synthetic Image Generator
 
 import os
 import PIL
@@ -93,7 +93,7 @@ for background_img in os.listdir( bg_dir ):
                         if config[ "flip_ver" ] and random.randint( 0,1 ) == 1:
                             foreground = foreground.transpose(PIL.Image.FLIP_TOP_BOTTOM)
 
-                        width = random.randint( background.size[ 0 ] * config[ "scale_min" ], background.size[ 0 ] * config[ "scale_max" ] )
+                        width = random.randint( int( background.size[ 0 ] * config[ "scale_min" ] ), int( background.size[ 0 ] * config[ "scale_max" ] ) )
                         height = int( ( width / foreground.size[ 0 ] ) * foreground.size[ 1 ] )
                         x = random.randint( 0, background.size[ 0 ] - width )
                         y = random.randint( 0, background.size[ 1 ] - height )
