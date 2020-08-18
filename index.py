@@ -147,7 +147,7 @@ for background_img in os.listdir( bg_dir ):
                         root.append ( object_ );
 
 
-            background.save( os.path.join( os.getcwd(), "output/images/" + config[ "file_prefix" ] + str( counter ) +  ".png" ) );
+            background.save( os.path.join( os.getcwd(), "output/images/" + config[ "file_prefix" ] + str( counter ) +  ".jpg" ) );
 
             with open( os.path.join( os.getcwd(), "output/annotations/" + config[ "file_prefix" ] + str( counter ) +  ".xml" ), "wb") as f: 
                 f.write( gfg.tostring( root ) )
