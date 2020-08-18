@@ -5,12 +5,14 @@ import os
 import PIL
 from PIL import Image, ImageDraw, ImageFilter, ImageEnhance
 import xml.etree.ElementTree as gfg
+import xmltodict, json
 import random
 from rectangles import *
 # import rectangles
 
 bg_dir = os.path.join( os.getcwd(), "backgrounds" )
 cl_dir = os.path.join( os.getcwd(), "objects" ) 
+
 
 # config
 config = {
@@ -19,14 +21,14 @@ config = {
     "scale_min": 0.20, # smallest percentage of obj
     "scale_max": 0.50, # largest percentage of obj
 
-    "rotate_min": -45, # min rotation
-    "rotate_max": 45, # max rotation
+    "rotate_min": 0, # min rotation
+    "rotate_max": 0, # max rotation
     
-    "flip_hor": True, # if it will randomly flip horizontally
+    "flip_hor": False, # if it will randomly flip horizontally
     "flip_ver": False, # if it will randomly flip veritcally
 
     "per_class_min": 1, # min number per class
-    "per_class_max": 3, # max number per class
+    "per_class_max": 100, # max number per class (so high to deal with overlap errors)
     
     "contrast_min": 80, # min contrast
     "contrast_max": 100, # max contrast ( 100 is orginal )
@@ -80,7 +82,10 @@ for background_img in os.listdir( bg_dir ):
 
                     for interation in range( 0, random.randint( config[ "per_class_min" ], config[ "per_class_max" ] ) ):
 
-                        foreground = Image.open( os.path.join( cl_dir, class_dir, random.choice( os.listdir( os.path.join( cl_dir, class_dir )  ) ) ) )
+                        file = random.choice( os.listdir( os.path.join( cl_dir, class_dir, "annotations" ) ) );
+                        file = json.loads( json.dumps( xmltodict.parse( gfg.tostring( gfg.parse( os.path.join( cl_dir, class_dir, "annotations", file ) ).getroot() ) ) ) )[ "annotation" ]
+
+                        foreground = Image.open( os.path.join( cl_dir, class_dir, "images", file[ "filename" ] ) )
 
                         if config[ "flip_hor" ] and random.randint( 0,1 ) == 1:
                             foreground = foreground.transpose(PIL.Image.FLIP_LEFT_RIGHT)
@@ -118,19 +123,26 @@ for background_img in os.listdir( bg_dir ):
                         object_name = gfg.SubElement( object_, "name" ) 
                         object_name.text = class_dir
 
-                        object_bdnbox = gfg.SubElement( object_, "bdnbox" ) 
+                        object_bndbox = gfg.SubElement( object_, "bndbox" ) 
 
-                        object_bdnbox_xmin = gfg.SubElement( object_bdnbox, "xmin" ) 
-                        object_bdnbox_xmin.text = str( x )
+                        # print(   )
 
-                        object_bdnbox_ymin = gfg.SubElement( object_bdnbox, "ymin" ) 
-                        object_bdnbox_ymin.text = str( y )
+                        x_min_change = int( int( file[ "object" ][ "bndbox" ][ "xmin" ] ) * ( width / int( file[ "size" ][ "width" ] ) ) );
+                        x_max_change = int( int( file[ "object" ][ "bndbox" ][ "xmax" ] ) * ( width / int( file[ "size" ][ "width" ] ) ) );
+                        y_min_change = int( int( file[ "object" ][ "bndbox" ][ "ymin" ] ) * ( height / int( file[ "size" ][ "height" ] ) ) );
+                        y_max_change = int( int( file[ "object" ][ "bndbox" ][ "ymax" ] ) * ( height / int( file[ "size" ][ "height" ] ) ) );
 
-                        object_bdnbox_xmax = gfg.SubElement( object_bdnbox, "xmax" ) 
-                        object_bdnbox_xmax.text = str( x + width )
+                        object_bndbox_xmin = gfg.SubElement( object_bndbox, "xmin" ) 
+                        object_bndbox_xmin.text = str( x + x_min_change )
 
-                        object_bdnbox_ymax = gfg.SubElement( object_bdnbox, "ymax" ) 
-                        object_bdnbox_ymax.text = str( y + height )
+                        object_bndbox_ymin = gfg.SubElement( object_bndbox, "ymin" ) 
+                        object_bndbox_ymin.text = str( y + y_min_change )
+
+                        object_bndbox_xmax = gfg.SubElement( object_bndbox, "xmax" ) 
+                        object_bndbox_xmax.text = str( x + x_max_change )
+
+                        object_bndbox_ymax = gfg.SubElement( object_bndbox, "ymax" ) 
+                        object_bndbox_ymax.text = str( y + y_max_change )
 
                         root.append ( object_ );
 
