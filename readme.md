@@ -29,7 +29,7 @@ By default it will grab from the `output` directory. So you must make a folder c
 ### Updates
 - **(8/18/20)** Added preview feature allowing you to draw bounding boxes over annotations that were generated
 - **(8/18/20)** Fixed integer random failor point
-- **(8/18/20)** Exports as jpg to support tensorflow
+- **(8/18/20)** sRGB export updated to JPG type to support tensorflow
 
 ### Fix Code
 - Very messy code, needs cleaned up
