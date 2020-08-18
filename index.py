@@ -56,11 +56,11 @@ for background_img in os.listdir( bg_dir ):
             root.append( folder )
 
             filename = gfg.Element( "filename" ) 
-            filename.text = config[ "file_prefix" ] + str( counter ) +  ".png"
+            filename.text = config[ "file_prefix" ] + str( counter ) +  ".jpg"
             root.append( filename )
 
             path = gfg.Element( "path" ) 
-            path.text = "images/" + config[ "file_prefix" ] + str( counter ) +  ".png"
+            path.text = "images/" + config[ "file_prefix" ] + str( counter ) +  ".jpg"
             root.append( path )
 
             size = gfg.Element( "size" ) 
@@ -146,7 +146,8 @@ for background_img in os.listdir( bg_dir ):
 
                         root.append ( object_ );
 
-
+                        
+            background = background.convert( "RGB" )
             background.save( os.path.join( os.getcwd(), "output/images/" + config[ "file_prefix" ] + str( counter ) +  ".jpg" ) );
 
             with open( os.path.join( os.getcwd(), "output/annotations/" + config[ "file_prefix" ] + str( counter ) +  ".xml" ), "wb") as f: 
