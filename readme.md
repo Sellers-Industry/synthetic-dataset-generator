@@ -11,7 +11,9 @@ All these directories must be created, this means you need an `output/images`, `
 
 Doesn't support multiple bounding per object. You may only have one bounding box per annoation in the object file.
 
-![Example Sythetic](example1.png)
+Rotation is supported on images, but the images are cropped when images are rotated so ensure there is ample white space so the object doesn't get cropped.
+
+![Example Sythetic](example1.jpg)
 
 <br>
 <br>
@@ -21,7 +23,7 @@ New preview feature which allows you to preview what a annotation looks like. Th
 
 By default it will grab from the `output` directory. So you must make a folder called `output/preview` and the images will be placed here. You can edit the directories in the `preview.py` python file.
 
-![Example Preview](example2.png)
+![Example Preview](example2.jpg)
 
 <br>
 <br>
@@ -30,9 +32,13 @@ By default it will grab from the `output` directory. So you must make a folder c
 - **(8/18/20)** Added preview feature allowing you to draw bounding boxes over annotations that were generated
 - **(8/18/20)** Fixed integer random failor point
 - **(8/18/20)** sRGB export updated to JPG type to support tensorflow
+- **(8/25/20)** Full Code Updated
+    - Removed dependency of `rectangle.py`
+    - Added more abstract methods
+    - Added rotation support
+
+
 
 ### Fix Code
-- Very messy code, needs cleaned up
 - When placing objects save position and regenerate location if it overlaps
-- create own overlap calcutor and percentage of overlap, if it's less then 10%
-- fix rotation bounding box
+- cropping of images when rotated

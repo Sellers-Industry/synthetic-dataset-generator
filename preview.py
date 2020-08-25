@@ -16,7 +16,7 @@ for annotation in os.listdir( annotations_dir ):
     file = json.loads( json.dumps( xmltodict.parse( ET.tostring( ET.parse( os.path.join( annotations_dir, annotation ) ).getroot() ) ) ) )[ "annotation" ];
 
     bbox = [];
-    source_img = Image.open( os.path.join( images_dir, file[ "filename" ] ) ).convert("RGBA");
+    source_img = Image.open( os.path.join( images_dir, file[ "filename" ] ) ).convert("RGB");
 
     if isinstance( file[ "object" ], list ):
         bbox = file[ "object" ]
@@ -29,4 +29,4 @@ for annotation in os.listdir( annotations_dir ):
         draw.text((int( bbox[ bounding ][ "bndbox" ][ "xmin" ] ), int( bbox[ bounding ][ "bndbox" ][ "ymin" ] )), bbox[ bounding ][ "name" ] )
 
     draw.text( ( 0, 0 ), "Aris Defense Project - Synthetic Image Generator (Sellers Industry 2020)" )
-    source_img.save( os.path.join( output_dir, file[ "filename" ] ), "PNG" );
+    source_img.save( os.path.join( output_dir, file[ "filename" ] ) );
