@@ -1,5 +1,5 @@
 # Synthetic Dataset Creator (Aris Defense Project)
-**Created by Sellers Industry 2020**
+**Developed by Sellers Industry Research Division (Aug 16, 2020)**
 
 This project was created to help create a synthetic  dataset for the Aris Defense Weapon Detection System. This sythetic dataset creator will take images with no background and place many ontop background images. You can use either JPG or PNG for the background images. However, the object classes must be PNG, if you want them to be placed properly. You also need these images to have no background. Using object images with background have not purpose. There are a bunch of config options placed in python file, these help config how you want to create each image.
 
