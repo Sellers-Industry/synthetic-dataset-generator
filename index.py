@@ -1,5 +1,17 @@
-# Sellers Industry 2020
-# Aris Defense Project - Synthetic Image Generator
+#
+#   Copyright (C) 2020 Sellers Industry - All Rights Reserved
+#   Unauthorized copying of this file, via any medium is strictly
+#   prohibited. Proprietary and confidential.
+#
+#   author: Evan Sellers <sellersew@gmail.com>
+#   date: Sat Oct 16 2020
+#   file: index.py
+#   project: Sythetic Dataset Generator
+#   purpose: This sythetic dataset creator will take images with
+#       no background and place many ontop background images
+#
+#
+
 
 import os
 import math 
@@ -14,7 +26,7 @@ img_path = "images"
 xml_path = "annotations"
 bg_dir   = os.path.join( os.getcwd(), "backgrounds" )
 cl_dir   = os.path.join( os.getcwd(), "objects" ) 
-counter  = 0;
+counter  = 0
 
 # config
 config = {
@@ -69,8 +81,8 @@ def imageManipulation( image, bounding ):
 
     # Rotation Matrixs
     if config[ "rotate_min" ] != 0:
-        rotate = random.randint( config[ "rotate_min" ], config[ "rotate_max" ] );
-        image  = image.rotate( rotate );
+        rotate = random.randint( config[ "rotate_min" ], config[ "rotate_max" ] )
+        image  = image.rotate( rotate )
         c_TL = rotatePoint( ( w / 2, h / 2 ), ( x1, y1 ), math.radians( -rotate ) )
         c_TR = rotatePoint( ( w / 2, h / 2 ), ( x2, y1 ), math.radians( -rotate ) )
         c_BL = rotatePoint( ( w / 2, h / 2 ), ( x1, y2 ), math.radians( -rotate ) )
@@ -82,11 +94,11 @@ def imageManipulation( image, bounding ):
 
     # Contrast Changes
     if config[ "contrast_min" ] != 100:
-        image = ImageEnhance.Contrast( image ).enhance( random.uniform( config[ "contrast_min" ], config[ "contrast_max" ] ) / 100 );
+        image = ImageEnhance.Contrast( image ).enhance( random.uniform( config[ "contrast_min" ], config[ "contrast_max" ] ) / 100 )
 
     # Brightness Changes
     if config[ "brightness_min" ] != 100:
-        image = ImageEnhance.Brightness( image ).enhance( random.uniform( config[ "brightness_min" ], config[ "brightness_max" ] ) / 100 );
+        image = ImageEnhance.Brightness( image ).enhance( random.uniform( config[ "brightness_min" ], config[ "brightness_max" ] ) / 100 )
 
     return image, ( x1, y1, x2, y2 )
 
@@ -101,11 +113,11 @@ def overlap( _bbox, bbox ):
     for i in range( 0, len( _bbox ) ):
         if axis_overlap( _bbox[ i ][ 0 ], _bbox[ i ][ 2 ], bbox[ 0 ], bbox[ 2 ] ) and axis_overlap( _bbox[ i ][ 1 ], _bbox[ i ][ 3 ], bbox[ 1 ], bbox[ 3 ] ):
             return True
-    return False;
+    return False
 
 
 def xml_basic( file_name, image_size ):
-    root = gfg.Element( "annotation" );
+    root = gfg.Element( "annotation" )
 
     folder = gfg.Element( "folder" ) 
     folder.text = "images"
@@ -116,7 +128,7 @@ def xml_basic( file_name, image_size ):
     root.append( filename )
 
     path = gfg.Element( "path" ) 
-    path.text = str( img_path + "/" + file_name );
+    path.text = str( img_path + "/" + file_name )
     root.append( path )
 
     size = gfg.Element( "size" ) 
@@ -152,7 +164,7 @@ def xml_append( root, obj_class, bbox ):
     object_bndbox_ymax = gfg.SubElement( object_bndbox, "ymax" ) 
     object_bndbox_ymax.text = str( int( bbox[ 3 ] ) )
 
-    root.append( _object );
+    root.append( _object )
 
     return root
 
@@ -161,11 +173,11 @@ def xml_append( root, obj_class, bbox ):
 for background_img in os.listdir( bg_dir ):
     if background_img.endswith( ".jpg" ) or background_img.endswith( ".png" ):
 
-        background = Image.open( os.path.join( bg_dir, background_img ) );
-        name       = config[ "file_prefix" ] + str( counter );
+        background = Image.open( os.path.join( bg_dir, background_img ) )
+        name       = config[ "file_prefix" ] + str( counter )
         img_name   = name + ".jpg"
         xml_name   = name + ".xml"
-        boundings  = []; # each bounding added
+        boundings  = [] # each bounding added
 
         xml_annotation = xml_basic( img_name, ( background.size[ 0 ], background.size[ 1 ] ) )
 
@@ -219,7 +231,7 @@ for background_img in os.listdir( bg_dir ):
                         boundings.append( ( _x, _y, _x + _width, _y + _height ) )
 
         counter += 1
-        background.save( os.path.join( save_dir, img_path, img_name ) );
+        background.save( os.path.join( save_dir, img_path, img_name ) )
 
         with open( os.path.join( save_dir, xml_path, xml_name ), "wb") as f: 
             f.write( gfg.tostring( xml_annotation ) )

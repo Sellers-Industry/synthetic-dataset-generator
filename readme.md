@@ -33,7 +33,18 @@ By default it will grab from the `output` directory. So you must make a folder c
 <br>
 <br>
 
+## Crop System
+New crop freature allows you to crop around each object image that was generated from the annotations. It will take what ever is loaded in the output folder and crop around each bounding box. Run this script after you have generated the output using the `crop.py` script.
+
+By default it will grab from the `output` directory. So you must make a folder called `output/crop` and the images will be placed here. You can edit the directories in the `preview.py` python file.
+
+![Example Preview](example3.jpg)
+
+<br>
+<br>
+
 ### Updates
+- **(11/7/20)** Added script utility to crop around the bounding boxes created.
 - **(11/7/20)** Now allows generation without an annotation for an image. If an image does not have an annotation will place the bounding box around the whole image that was placed.
 - **(8/18/20)** Added preview feature allowing you to draw bounding boxes over annotations that were generated
 - **(8/18/20)** Fixed integer random failor point
