@@ -31,6 +31,7 @@ counter  = 0
 # config
 config = {
     "file_prefix": "aris_img_",
+    "quality": 50, # quality of image save
 
     "scale_min": 0.20, # smallest percentage of obj
     "scale_max": 0.50, # largest percentage of obj
@@ -171,67 +172,71 @@ def xml_append( root, obj_class, bbox ):
 
 
 for background_img in os.listdir( bg_dir ):
-    if background_img.endswith( ".jpg" ) or background_img.endswith( ".png" ):
+    try:
+        if background_img.endswith( ".jpg" ) or background_img.endswith( ".png" ):
 
-        background = Image.open( os.path.join( bg_dir, background_img ) )
-        name       = config[ "file_prefix" ] + str( counter )
-        img_name   = name + ".jpg"
-        xml_name   = name + ".xml"
-        boundings  = [] # each bounding added
+            background = Image.open( os.path.join( bg_dir, background_img ) )
+            name       = config[ "file_prefix" ] + str( counter )
+            img_name   = name + ".jpg"
+            xml_name   = name + ".xml"
+            boundings  = [] # each bounding added
 
-        xml_annotation = xml_basic( img_name, ( background.size[ 0 ], background.size[ 1 ] ) )
+            xml_annotation = xml_basic( img_name, ( background.size[ 0 ], background.size[ 1 ] ) )
 
-        for obj_class in os.listdir( cl_dir ):
-            if os.path.isdir( os.path.join( cl_dir, obj_class ) ):
-                for interation in range( 0, random.randint( config[ "per_class_min" ], config[ "per_class_max" ] ) ):
+            for obj_class in os.listdir( cl_dir ):
+                if os.path.isdir( os.path.join( cl_dir, obj_class ) ):
+                    for interation in range( 0, random.randint( config[ "per_class_min" ], config[ "per_class_max" ] ) ):
 
-                    image      = random.choice( os.listdir( os.path.join( cl_dir, obj_class, "images" ) ) )
-                    annotation = os.path.splitext( image )[ 0 ] + ".xml"
-                    foreground = Image.open( os.path.join( cl_dir, obj_class, "images", image ) )
+                        image      = random.choice( os.listdir( os.path.join( cl_dir, obj_class, "images" ) ) )
+                        annotation = os.path.splitext( image )[ 0 ] + ".xml"
+                        foreground = Image.open( os.path.join( cl_dir, obj_class, "images", image ) )
 
-                    # If has annotation
-                    if os.path.exists( os.path.join( cl_dir, obj_class, "annotations" ) ) and os.path.exists( os.path.join( cl_dir, obj_class, "annotations", annotation ) ):
-                        file = json.loads( json.dumps( xmltodict.parse( gfg.tostring( gfg.parse( os.path.join( cl_dir, obj_class, "annotations", annotation ) ).getroot() ) ) ) )[ "annotation" ]
-                    
-                        # Set Original Bounding Boxes
-                        bbox = (
-                            int( file[ "object" ][ "bndbox" ][ "xmin" ] ),
-                            int( file[ "object" ][ "bndbox" ][ "ymin" ] ),
-                            int( file[ "object" ][ "bndbox" ][ "xmax" ] ),
-                            int( file[ "object" ][ "bndbox" ][ "ymax" ] )
+                        # If has annotation
+                        if os.path.exists( os.path.join( cl_dir, obj_class, "annotations" ) ) and os.path.exists( os.path.join( cl_dir, obj_class, "annotations", annotation ) ):
+                            file = json.loads( json.dumps( xmltodict.parse( gfg.tostring( gfg.parse( os.path.join( cl_dir, obj_class, "annotations", annotation ) ).getroot() ) ) ) )[ "annotation" ]
+                        
+                            # Set Original Bounding Boxes
+                            bbox = (
+                                int( file[ "object" ][ "bndbox" ][ "xmin" ] ),
+                                int( file[ "object" ][ "bndbox" ][ "ymin" ] ),
+                                int( file[ "object" ][ "bndbox" ][ "xmax" ] ),
+                                int( file[ "object" ][ "bndbox" ][ "ymax" ] )
+                            )
+
+                        else:
+                            bbox = (
+                                0,
+                                0,
+                                foreground.size[ 0 ],
+                                foreground.size[ 1 ]
+                            )
+
+                        foreground, bbox = imageManipulation( foreground, bbox )
+
+                        # Set Position and size of object
+                        _width  = random.randint( int( background.size[ 0 ] * config[ "scale_min" ] ), int( background.size[ 0 ] * config[ "scale_max" ] ) )
+                        _height = int( ( _width / foreground.size[ 0 ] ) * foreground.size[ 1 ] )
+                        _x      = random.randint( 0, background.size[ 0 ] - _width )
+                        _y      = random.randint( 0, background.size[ 1 ] - _height )
+                        _bbox   = (
+                            _x + bbox[ 0 ] * ( _width / foreground.size[ 0 ] ),
+                            _y + bbox[ 1 ] * ( _height / foreground.size[ 1 ] ),
+                            _x + bbox[ 2 ] * ( _width / foreground.size[ 0 ] ),
+                            _y + bbox[ 3 ] * ( _height / foreground.size[ 1 ] ),
                         )
 
-                    else:
-                        bbox = (
-                            0,
-                            0,
-                            foreground.size[ 0 ],
-                            foreground.size[ 1 ]
-                        )
+                        if not overlap( boundings, ( _x, _y, _x + _width, _y + _height ) ):
+                            foreground     = foreground.resize( ( _width, _height ) )
+                            xml_annotation = xml_append( xml_annotation, obj_class, _bbox )
 
-                    foreground, bbox = imageManipulation( foreground, bbox )
+                            background.paste( foreground, ( _x, _y ), foreground )
+                            boundings.append( ( _x, _y, _x + _width, _y + _height ) )
 
-                    # Set Position and size of object
-                    _width  = random.randint( int( background.size[ 0 ] * config[ "scale_min" ] ), int( background.size[ 0 ] * config[ "scale_max" ] ) )
-                    _height = int( ( _width / foreground.size[ 0 ] ) * foreground.size[ 1 ] )
-                    _x      = random.randint( 0, background.size[ 0 ] - _width )
-                    _y      = random.randint( 0, background.size[ 1 ] - _height )
-                    _bbox   = (
-                        _x + bbox[ 0 ] * ( _width / foreground.size[ 0 ] ),
-                        _y + bbox[ 1 ] * ( _height / foreground.size[ 1 ] ),
-                        _x + bbox[ 2 ] * ( _width / foreground.size[ 0 ] ),
-                        _y + bbox[ 3 ] * ( _height / foreground.size[ 1 ] ),
-                    )
+            counter += 1
+            background.save( os.path.join( save_dir, img_path, img_name ), quality=config[ "quality" ], optimize=True )
 
-                    if not overlap( boundings, ( _x, _y, _x + _width, _y + _height ) ):
-                        foreground     = foreground.resize( ( _width, _height ) )
-                        xml_annotation = xml_append( xml_annotation, obj_class, _bbox )
-
-                        background.paste( foreground, ( _x, _y ), foreground )
-                        boundings.append( ( _x, _y, _x + _width, _y + _height ) )
-
-        counter += 1
-        background.save( os.path.join( save_dir, img_path, img_name ) )
-
-        with open( os.path.join( save_dir, xml_path, xml_name ), "wb") as f: 
-            f.write( gfg.tostring( xml_annotation ) )
+            with open( os.path.join( save_dir, xml_path, xml_name ), "wb") as f: 
+                f.write( gfg.tostring( xml_annotation ) )
+        print( "success =>" + str( counter ) ) 
+    except:
+        print( "error   =>" + str( counter ) ) 
