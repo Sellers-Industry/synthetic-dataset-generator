@@ -173,19 +173,31 @@ for background_img in os.listdir( bg_dir ):
             if os.path.isdir( os.path.join( cl_dir, obj_class ) ):
                 for interation in range( 0, random.randint( config[ "per_class_min" ], config[ "per_class_max" ] ) ):
 
-                    file = random.choice( os.listdir( os.path.join( cl_dir, obj_class, "annotations" ) ) );
-                    file = json.loads( json.dumps( xmltodict.parse( gfg.tostring( gfg.parse( os.path.join( cl_dir, obj_class, "annotations", file ) ).getroot() ) ) ) )[ "annotation" ]
-                    foreground = Image.open( os.path.join( cl_dir, obj_class, "images", file[ "filename" ] ) )
+                    image      = random.choice( os.listdir( os.path.join( cl_dir, obj_class, "images" ) ) )
+                    annotation = os.path.splitext( image )[ 0 ] + ".xml"
+                    foreground = Image.open( os.path.join( cl_dir, obj_class, "images", image ) )
 
-                    # Set Original Bounding Boxes
-                    bbox = (
-                        int( file[ "object" ][ "bndbox" ][ "xmin" ] ),
-                        int( file[ "object" ][ "bndbox" ][ "ymin" ] ),
-                        int( file[ "object" ][ "bndbox" ][ "xmax" ] ),
-                        int( file[ "object" ][ "bndbox" ][ "ymax" ] )
-                    )
+                    # If has annotation
+                    if os.path.exists( os.path.join( cl_dir, obj_class, "annotations" ) ) and os.path.exists( os.path.join( cl_dir, obj_class, "annotations", annotation ) ):
+                        file = json.loads( json.dumps( xmltodict.parse( gfg.tostring( gfg.parse( os.path.join( cl_dir, obj_class, "annotations", annotation ) ).getroot() ) ) ) )[ "annotation" ]
+                    
+                        # Set Original Bounding Boxes
+                        bbox = (
+                            int( file[ "object" ][ "bndbox" ][ "xmin" ] ),
+                            int( file[ "object" ][ "bndbox" ][ "ymin" ] ),
+                            int( file[ "object" ][ "bndbox" ][ "xmax" ] ),
+                            int( file[ "object" ][ "bndbox" ][ "ymax" ] )
+                        )
 
-                    foreground, bbox = imageManipulation( foreground, bbox );
+                    else:
+                        bbox = (
+                            0,
+                            0,
+                            foreground.size[ 0 ],
+                            foreground.size[ 1 ]
+                        )
+
+                    foreground, bbox = imageManipulation( foreground, bbox )
 
                     # Set Position and size of object
                     _width  = random.randint( int( background.size[ 0 ] * config[ "scale_min" ] ), int( background.size[ 0 ] * config[ "scale_max" ] ) )

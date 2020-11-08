@@ -8,7 +8,7 @@ The use of synthetic generated images increases dataset accuracy and produces ov
 
 
 ## Description
-The folder structure is simple. A `backgrounds` folder which contains the backgrounds that will be used, each of these will only be used onced. These background images can only be png. There is then an `objects` directory, inside this directory you will place another folder with PNG images it in. For examples, lets say we want to add a laptop class, create a folder `objects/laptop`, there is then a `objects/laptop/annotations` folder which you place the annotations in and an `objects/laptop/images` where laptop images (PNG) in that folder. You can use [ Make Sense AI ](makesense.ai) to create the annoations. All final images are exported as PNG to ensure support of Tensorflow.
+The folder structure is simple. A `backgrounds` folder which contains the backgrounds that will be used, each of these will only be used onced. These background images can only be png. There is then an `objects` directory, inside this directory you will place another folder with PNG images it in. For examples, lets say we want to add a laptop class, create a folder `objects/laptop`, there is then a `objects/laptop/annotations` folder which you place the annotations in and an `objects/laptop/images` where laptop images (PNG) in that folder. You can use [ Make Sense AI ](makesense.ai) to create the annoations. All final images are exported as PNG to ensure support of Tensorflow. An annotation is not required for an images. If there is no image it the program will place the bounding box around the full placed image.
 
 The output model in the Tensorflow format, with an `output/images` which contains all the images created and will have a `output/annotations` folder with all the xml annotations.
 
@@ -34,6 +34,7 @@ By default it will grab from the `output` directory. So you must make a folder c
 <br>
 
 ### Updates
+- **(11/7/20)** Now allows generation without an annotation for an image. If an image does not have an annotation will place the bounding box around the whole image that was placed.
 - **(8/18/20)** Added preview feature allowing you to draw bounding boxes over annotations that were generated
 - **(8/18/20)** Fixed integer random failor point
 - **(8/18/20)** sRGB export updated to JPG type to support tensorflow
