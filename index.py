@@ -38,6 +38,7 @@ config = {
 
     "rotate_min": -45, # min rotation
     "rotate_max": 45, # max rotation
+    "rotate_expand": False, # if the image expands when rotated # will make bounding box fail if true
     
     "flip_hor": True, # if it will randomly flip horizontally
     "flip_ver": True, # if it will randomly flip veritcally
@@ -83,7 +84,7 @@ def imageManipulation( image, bounding ):
     # Rotation Matrixs
     if config[ "rotate_min" ] != 0:
         rotate = random.randint( config[ "rotate_min" ], config[ "rotate_max" ] )
-        image  = image.rotate( rotate )
+        image  = image.rotate( rotate, expand=config[ "rotate_expand" ] )
         c_TL = rotatePoint( ( w / 2, h / 2 ), ( x1, y1 ), math.radians( -rotate ) )
         c_TR = rotatePoint( ( w / 2, h / 2 ), ( x2, y1 ), math.radians( -rotate ) )
         c_BL = rotatePoint( ( w / 2, h / 2 ), ( x1, y2 ), math.radians( -rotate ) )
